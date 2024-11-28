@@ -19,10 +19,14 @@ let listUsers = [];
 
 io.on("connection", (socket) => {
   console.log("co nguoi ket noi", socket.id);
-  listUsers.unshift(socket.id);
   setTimeout(() => {
-    socket.emit("server-send-information", { dataMessage, listUsers });
+    io.sockets.emit("server-send-update-user-online", { listUsers });
   }, 500);
+
+  socket.on("client-send-information-login", (payload) => {
+    listUsers.unshift({ ...payload, id: socket.id });
+    console.log(listUsers);
+  });
 
   socket.on("client-send-message", (payload) => {
     dataMessage.unshift(payload);
@@ -31,7 +35,8 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("ngat ket noi: ", socket.id);
-    listUsers = listUsers.filter((item) => item !== socket.id);
+    listUsers = listUsers.filter((item) => item.id !== socket.id);
+    socket.broadcast.emit("server-send-update-user-online", { listUsers });
   });
 });
 

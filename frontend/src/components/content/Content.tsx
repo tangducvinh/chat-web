@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { IoPersonAdd } from "react-icons/io5";
 import { FaBell } from "react-icons/fa";
-import { CgTimer } from "react-icons/cg";
+import { CgNametag, CgTimer } from "react-icons/cg";
 import { IoSendSharp } from "react-icons/io5";
 import Message from "../message/message";
 import io from "socket.io-client";
+import { useMyContext } from "@/store/MyContext";
 
 interface IMessage {
   name: string;
@@ -14,28 +15,24 @@ interface IMessage {
   time: string;
   content: string;
 }
-const socket = io("http://localhost:5000");
 
 const Content = () => {
+  const { socket, name } = useMyContext();
   const [message, setMessage] = useState<string>("");
   const [listMessage, setListMessage] = useState<IMessage[]>([]);
 
   useEffect(() => {
-    socket.on("server-send-message", (data) => {
+    socket?.on("server-send-message", (data: any) => {
       setListMessage(data);
-    });
-
-    socket.on("server-send-information", (data) => {
-      setListMessage(data.dataMessage);
     });
   }, [socket]);
 
-  const onSubmit = (e: Event) => {
+  const onSubmit = (e: any) => {
     e.preventDefault();
 
     if (message.trim()) {
       socket.emit("client-send-message", {
-        name: "berlin",
+        name,
         time: new Date(),
         content: message,
       });

@@ -1,21 +1,33 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useMyContext } from "@/store/MyContext";
+import io from "socket.io-client";
 
 interface IFormData {
   name: string;
 }
 
 const Page = () => {
+  const { setName, setSocket, socket, name } = useMyContext();
   const [formData, setFormData] = useState<IFormData>({
     name: "",
   });
   const router = useRouter();
-  const onSubmit = (e: Event) => {
+  const onSubmit = (e: any) => {
     e.preventDefault();
-
+    setName(formData.name);
+    const socket = io("http://localhost:5000");
+    setSocket(socket);
+    socket.emit("client-send-information-login", {
+      name: formData.name,
+    });
     router.push("/chat");
   };
+
+  useEffect(() => {
+    socket?.disconnect();
+  }, []);
 
   return (
     <div className="h-screen w-screen bg-[#C2B0EC] flex items-center justify-center">

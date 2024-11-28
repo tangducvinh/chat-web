@@ -4,14 +4,17 @@ import clsx from "clsx";
 import { CgMail } from "react-icons/cg";
 import { FaUserFriends } from "react-icons/fa";
 import ContentFriend from "../content/FriendContent";
+import { useMyContext } from "@/store/MyContext";
+import Image from "next/image";
+import female1 from "../../assets/avatar/female1.jpg";
+import ContentUserOnline from "../content/ContentUserOnline";
 
 const Sidebar = () => {
+  const { name } = useMyContext();
   const [option, setOption] = useState<number>(1);
 
-  console.log(option);
-
   return (
-    <div>
+    <div className="flex flex-col h-full">
       <h1 className="text-white font-bold text-2xl">Chatchit</h1>
 
       <div className="bg-black p-1 flex gap-2 rounded-md mt-4">
@@ -37,7 +40,26 @@ const Sidebar = () => {
         </button>
       </div>
 
-      <div>{option === 1 ? <div>here</div> : <ContentFriend />}</div>
+      <div className="flex-1 overflow-y-auto">
+        {option === 1 ? <ContentUserOnline /> : <ContentFriend />}
+      </div>
+
+      <div className="flex gap-3 items-center border-t-[1px] border-gray-300 pt-2 relative">
+        <Image
+          alt="avatar"
+          src={female1}
+          width={50}
+          height={50}
+          className="rounded-full"
+        ></Image>
+
+        <div className="w-[10px] h-[10px] rounded-full bg-green-500 absolute left-[42px] top-[42px] border-black border-[1px]"></div>
+
+        <div className="text-gray-300 text-sm">
+          <strong>{name}</strong>
+          <p>Free</p>
+        </div>
+      </div>
     </div>
   );
 };

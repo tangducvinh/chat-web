@@ -17,6 +17,8 @@ const io = new Server(server, {
 let dataMessage = [];
 let listUsers = [];
 
+let listTyping = [];
+
 io.on("connection", (socket) => {
   console.log("co nguoi ket noi", socket.id);
   setTimeout(() => {
@@ -33,6 +35,19 @@ io.on("connection", (socket) => {
     io.sockets.emit("server-send-message", dataMessage);
   });
 
+  // handle listening typing
+  socket.on("someone-typing", (name) => {
+    if (listTyping.length > 3) listTyping.pop();
+    listTyping.unshift(name);
+    socket.broadcast.emit("update-typing", listTyping);
+  });
+
+  // handle listening stop typing
+  socket.on("someone-stop-typing", (name) => {
+    listTyping = listTyping.filter((item) => item !== name);
+    socket.broadcast.emit("update-typing", listTyping);
+  });
+
   socket.on("disconnect", () => {
     console.log("ngat ket noi: ", socket.id);
     listUsers = listUsers.filter((item) => item.id !== socket.id);
@@ -45,3 +60,7 @@ app.get("/", (req, res, next) => {
 });
 
 module.exports = server;
+
+// socket.join  .. tao room || tham gia vao room
+// socket.adapter.rooms  // cac room dang co
+// io.sockets.in('dsdfsdf').emit()

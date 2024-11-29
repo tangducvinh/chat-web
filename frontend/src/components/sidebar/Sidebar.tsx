@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { CgMail } from "react-icons/cg";
 import { FaUserFriends } from "react-icons/fa";
 import ContentFriend from "../content/FriendContent";
+import main from "../../assets/main-icon/main.png";
 import { useMyContext } from "@/store/MyContext";
 import Image from "next/image";
 import female1 from "../../assets/avatar/female1.jpg";
@@ -15,7 +16,10 @@ const Sidebar = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <h1 className="text-white font-bold text-2xl">Chatchit</h1>
+      <h1 className="text-white font-bold text-xl flex items-center gap-3">
+        <Image alt="icon-main" src={main} width={40} height={40}></Image>
+        Chat v7
+      </h1>
 
       <div className="bg-black p-1 flex gap-2 rounded-md mt-4">
         <button

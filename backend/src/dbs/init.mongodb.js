@@ -1,4 +1,3 @@
-
 "use strict";
 
 const { default: mongoose } = require("mongoose");
@@ -7,8 +6,7 @@ const {
   db: { name, password, db },
 } = require("../config/mongodb.config");
 
-// const connectString = `mongodb+srv://${name}:${password}@cluster0.gm6wq.mongodb.net/?retryWrites=true&w=majority&appName=${db}`;
-const connectString = `mongodb+srv://${name}:${password}@cluster0.rglos.mongodb.net/?retryWrites=true&w=majority&appName=${db}`
+const connectString = `mongodb+srv://${name}:${password}@cluster0.rglos.mongodb.net/?retryWrites=true&w=majority&appName=${db}`;
 
 class Database {
   constructor() {
@@ -25,7 +23,7 @@ class Database {
     mongoose
       .connect(connectString, { maxPoolSize: 50 })
       .then((_) => console.log("Connect Mongodb Success", countConnect()))
-      .catch((eer) => console.log("Error Connect!"));
+      .catch((eer) => console.log("Error Connect!", eer));
   }
 
   static getInstance() {

@@ -1,10 +1,14 @@
-'use strict'
-const UserService = require('../services/user.services')
+"use strict";
+const UserService = require("../services/user.service");
+const { CREATED, OK } = require("../core/success.response");
 
 const createUser = async (req, res, next) => {
-    return await res.json(UserService.createUser(req.body))
-} 
+  console.log(req.body);
+  new CREATED({
+    metadata: await UserService.createUser(req.body),
+  }).send(res);
+};
 
 module.exports = {
-    createUser
-}
+  createUser,
+};

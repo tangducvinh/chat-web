@@ -9,20 +9,17 @@ interface IFormData {
 }
 
 const Page = () => {
-  const { setName, setSocket, socket, name } = useMyContext();
+  const { setSocket, socket, noticeNameInvalid } = useMyContext();
   const [formData, setFormData] = useState<IFormData>({
     name: "",
   });
-  const router = useRouter();
   const onSubmit = (e: any) => {
     e.preventDefault();
-    setName(formData.name);
     const socket = io("http://localhost:5000");
     setSocket(socket);
-    socket.emit("client-send-information-login", {
+    socket.emit("client-send-information-access", {
       name: formData.name,
     });
-    router.push("/chat");
   };
 
   useEffect(() => {
@@ -30,7 +27,7 @@ const Page = () => {
   }, []);
 
   return (
-    <div className="h-screen w-screen bg-[#C2B0EC] flex items-center justify-center">
+    <div className="h-screen w-screen bg-[#11101C] flex items-center justify-center">
       <form onSubmit={onSubmit} className="w-[400px] bg-white rounded-lg p-4">
         <div className="flex">
           <label className="mr-4">Username</label>
@@ -44,6 +41,11 @@ const Page = () => {
             }
           ></input>
         </div>
+        {noticeNameInvalid && (
+          <p className="text-sm font-semibold text-center text-red-500">
+            {noticeNameInvalid}
+          </p>
+        )}
 
         <button
           type="submit"

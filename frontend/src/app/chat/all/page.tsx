@@ -8,14 +8,19 @@ import MessageItem from "@/components/message/MessageItem";
 import { useMyContext } from "@/store/MyContext";
 
 interface IMessage {
-  name: string;
-  avatar?: string;
-  time: string;
-  content: string;
+  mes_content: string;
+  mes_create_at: string;
+  mes_scope: string;
+  createdAt: string;
+  mes_user_send: {
+    _id: string;
+    user_name: string;
+    user_avatar: string;
+  };
 }
 
 const Content = () => {
-  const { socket, name } = useMyContext();
+  const { socket, user } = useMyContext();
   const [message, setMessage] = useState<string>("");
   const [listMessage, setListMessage] = useState<IMessage[]>([]);
   const [listTyping, setListTyping] = useState<string[]>([]);
@@ -35,9 +40,9 @@ const Content = () => {
 
     if (message.trim()) {
       socket.emit("client-send-message", {
-        name,
-        time: new Date(),
         content: message,
+        userId: user.id,
+        scope: "global",
       });
       setMessage("");
     }
@@ -50,6 +55,7 @@ const Content = () => {
   const handleStopTyping = () => {
     socket.emit("someone-stop-typing", name);
   };
+  console.log({ listMessage });
   return (
     <div className="w-full flex flex-col">
       <HeaderContent title={"Chat global"} />
@@ -58,10 +64,10 @@ const Content = () => {
         {listMessage.map((item, index) => (
           <MessageItem
             key={index}
-            avatar={item.avatar || "d"}
-            name={item.name}
-            content={item.content}
-            time={item.time}
+            avatar={item.mes_user_send.user_avatar || "d"}
+            name={item.mes_user_send.user_name}
+            content={item.mes_content}
+            time={item.createdAt}
           />
         ))}
       </div>

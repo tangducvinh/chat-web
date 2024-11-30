@@ -1,12 +1,9 @@
-'use strict'
+"use strict";
 
-const router = require('express').Router()
-const userController = require('../controllers/user.controller')
+const router = require("express").Router();
+const userController = require("../controllers/user.controller");
+const asyncHandler = require("../helpers/asyncHandler");
 
-router.post('/create-user', userController.createUser)
+router.post("/", asyncHandler(userController.createUser));
 
-
-
-module.exports = router
-
-
+module.exports = router;

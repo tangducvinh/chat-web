@@ -6,7 +6,7 @@ import Image from "next/image";
 const ContentStart = () => {
   return (
     <div className="w-full flex flex-col justify-between">
-      <HeaderContent />
+      <HeaderContent title={"..."} />
 
       <div className="flex items-center gap-2 flex-col">
         <Image

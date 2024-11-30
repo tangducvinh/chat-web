@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
+const initRouter = require('./routers')
 
 const app = express();
 // app.set("view engine", "ejs");
@@ -13,6 +14,17 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
+
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+
+initRouter(app)
+require('./dbs/init.mongodb')
+
 
 let dataMessage = [];
 let listUsers = [];

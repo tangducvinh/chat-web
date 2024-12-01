@@ -13,7 +13,7 @@ interface IMessage {
 
 const Message: React.FC<IMessage> = ({ name, avatar, time, content }) => {
   return (
-    <div className="flex gap-3">
+    <li className="flex gap-3">
       <Image
         className="rounded-full object-cover"
         alt="avatar"
@@ -30,7 +30,7 @@ const Message: React.FC<IMessage> = ({ name, avatar, time, content }) => {
 
         <p className="break-words text-wrap">{content}</p>
       </div>
-    </div>
+    </li>
   );
 };
 

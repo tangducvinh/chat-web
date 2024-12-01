@@ -14,8 +14,9 @@ const getListMessage = async ({ limit, filter }) => {
       path: "mes_user_send",
       select: ["user_name", "_id"],
     })
-    .sort({ createAt: 1 });
-  // .limit(limit);
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .select(["mes_user_send", "mes_content", "mes_scope", "createdAt"]);
 };
 
 module.exports = {

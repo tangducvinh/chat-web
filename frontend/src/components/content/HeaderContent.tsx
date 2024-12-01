@@ -1,6 +1,7 @@
 import { IoPersonAdd } from "react-icons/io5";
 import { FaBell } from "react-icons/fa";
 import { CgTimer } from "react-icons/cg";
+import { memo } from "react";
 
 interface IProps {
   title: string;
@@ -20,4 +21,4 @@ const HeaderContent: React.FC<IProps> = ({ title }) => {
   );
 };
 
-export default HeaderContent;
+export default memo(HeaderContent);

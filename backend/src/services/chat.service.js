@@ -66,20 +66,23 @@ const SocketServices = (io) => {
         mes_scope: payload.scope,
       });
 
-      const listMessage = await MessageService.getListMessage({
-        limit: 2,
-        filter: { mes_scope: message.mes_scope },
-      });
-
-      console.log({ listMessage });
-
       if (message.mes_scope === "global") {
-        io.sockets.emit("server-send-message", listMessage.reverse());
+        const listMessage = await MessageService.getListMessage({
+          limit: 15,
+          filter: { mes_scope: message.mes_scope },
+        });
+        io.sockets.emit("server-send-message", listMessage);
       } else {
-        console.log("handle send for only room  ");
+        console.log("handle send for only room");
       }
 
       // io.sockets.emit("server-send-message", dataMessage);
+    });
+
+    // handle get more message
+    socket.on("client-get-more-message", (payload) => {
+      console.log("call api yet");
+      console.log(payload);
     });
 
     // handle listening typing

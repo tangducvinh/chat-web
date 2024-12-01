@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { IoSendSharp } from "react-icons/io5";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { IoSendSharp, IoArrowDownSharp } from "react-icons/io5";
+import { throttle } from "lodash";
 
 import HeaderContent from "@/components/content/HeaderContent";
 import MessageItem from "@/components/message/MessageItem";
@@ -24,6 +25,10 @@ const Content = () => {
   const [message, setMessage] = useState<string>("");
   const [listMessage, setListMessage] = useState<IMessage[]>([]);
   const [listTyping, setListTyping] = useState<string[]>([]);
+  const containerMessageRef = useRef<HTMLUListElement>(null);
+  const [showButtonScrollBottom, setShowButtonScrollBottom] =
+    useState<boolean>(false);
+  const apiCalled = useRef<boolean>(false);
 
   useEffect(() => {
     socket?.on("server-send-message", (data: any) => {
@@ -35,6 +40,12 @@ const Content = () => {
     });
   }, [socket]);
 
+  const handleGetMoreMessage = (socket: any, skip: number) => {
+    if (apiCalled.current) return;
+    apiCalled.current = true;
+    socket.emit("client-get-more-message", skip);
+  };
+
   const onSubmit = (e: any) => {
     e.preventDefault();
 
@@ -45,22 +56,60 @@ const Content = () => {
         scope: "global",
       });
       setMessage("");
+      handleScrollBottom();
     }
   };
 
   const handleTyping = () => {
-    socket.emit("someone-typing", name);
+    socket.emit("someone-typing", user.name);
   };
 
   const handleStopTyping = () => {
-    socket.emit("someone-stop-typing", name);
+    socket.emit("someone-stop-typing", user.name);
   };
-  console.log({ listMessage });
+
+  // listen even scroll container message
+  useEffect(() => {
+    const handleScroll = throttle(() => {
+      const scrollTop = containerMessageRef.current?.scrollTop;
+      const heightOfElement = containerMessageRef.current?.offsetHeight;
+
+      if (scrollTop && scrollTop < -100) {
+        setShowButtonScrollBottom(true);
+      } else {
+        setShowButtonScrollBottom(false);
+      }
+      if (scrollTop && heightOfElement && scrollTop + heightOfElement < 78) {
+        let skip = listMessage.length;
+
+        handleGetMoreMessage(socket, skip);
+      }
+    }, 200);
+
+    if (containerMessageRef.current) {
+      containerMessageRef.current.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      containerMessageRef.current?.removeEventListener("scroll", handleScroll);
+    };
+  }, [socket, listMessage.length]);
+
+  // handle scroll bottom
+  const handleScrollBottom = () => {
+    if (containerMessageRef.current) {
+      containerMessageRef.current.scrollTop =
+        containerMessageRef.current?.scrollHeight;
+    }
+  };
+
   return (
     <div className="w-full flex flex-col">
       <HeaderContent title={"Chat global"} />
-
-      <div className="flex flex-1 flex-col-reverse mb-[50px] p-3 gap-3 overflow-y-auto overflow-x-hidden">
+      <ul
+        ref={containerMessageRef}
+        className="flex flex-1 flex-col-reverse mb-[50px] p-3 gap-3 overflow-y-auto scrollbar scrollbar-custom scrollbar-thumb-gray-500 overflow-x-hidden scrollbar-custom"
+      >
         {listMessage.map((item, index) => (
           <MessageItem
             key={index}
@@ -70,7 +119,7 @@ const Content = () => {
             time={item.createdAt}
           />
         ))}
-      </div>
+      </ul>
 
       <div className="h-[70px] flex items-center bg-[#25262D] justify-around relative">
         <form
@@ -91,6 +140,15 @@ const Content = () => {
             </button>
           )}
         </form>
+
+        {showButtonScrollBottom && (
+          <button
+            onClick={() => handleScrollBottom()}
+            className="text-white absolute bottom-[120px] bg-gray-600 p-2 rounded-full"
+          >
+            <IoArrowDownSharp className="text-gray-300 text-2xl " />
+          </button>
+        )}
 
         {listTyping.length && (
           <ul className="absolute top-[-100px] left-[80px] h-[80px] flex flex-col-reverse">

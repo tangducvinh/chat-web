@@ -73,9 +73,11 @@ export const MyProvider: React.FC<MyProviderProps> = ({ children }) => {
     if (!accessToken) {
       return router.push("/");
     }
-    const socket = io("http://localhost:5000");
-    setSocket(socket);
-    socket?.emit(
+
+    console.log("create new socket");
+    const newSocket = io("http://localhost:5000");
+    setSocket(newSocket);
+    newSocket.emit(
       "client-send-get-user-by-accessToken",
       JSON.parse(accessToken)
     );

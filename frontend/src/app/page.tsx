@@ -9,7 +9,9 @@ interface IFormData {
 }
 
 const Page = () => {
-  const { setSocket, socket, noticeNameInvalid } = useMyContext();
+  const router = useRouter();
+  const { setSocket, socket, noticeNameInvalid, setNoticeNameInvalid } =
+    useMyContext();
   const [formData, setFormData] = useState<IFormData>({
     name: "",
   });
@@ -23,7 +25,11 @@ const Page = () => {
   };
 
   useEffect(() => {
-    socket?.disconnect();
+    // socket?.disconnect();
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      router.push("/chat");
+    }
   }, []);
 
   return (
@@ -36,6 +42,7 @@ const Page = () => {
             placeholder="Enter username..."
             className="outline-none flex-1"
             value={formData.name}
+            onFocus={() => setNoticeNameInvalid("")}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, name: e.target.value }))
             }

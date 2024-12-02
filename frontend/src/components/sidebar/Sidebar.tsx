@@ -9,17 +9,37 @@ import { useMyContext } from "@/store/MyContext";
 import Image from "next/image";
 import female1 from "../../assets/avatar/female1.jpg";
 import ContentUserOnline from "../content/ContentUserOnline";
+import { IoPersonAdd } from "react-icons/io5";
+import FormAddFriend from "../form/FormAddFriend";
+import { useCallback } from "react";
 
 const Sidebar = () => {
   const { user } = useMyContext();
   const [option, setOption] = useState<number>(1);
+  const [showFormAddFriend, setShowFormAddFriend] = useState<boolean>(true);
+
+  // handle close form add friend
+  const handleShowFormAddFriend = useCallback(() => {
+    setShowFormAddFriend((prev) => !prev);
+  }, []);
 
   return (
-    <div className="flex flex-col h-full">
-      <h1 className="text-white font-bold text-xl flex items-center gap-3">
-        <Image alt="icon-main" src={main} width={40} height={40}></Image>
-        Chat v7
-      </h1>
+    <div className="flex flex-col h-full relative">
+      {showFormAddFriend && (
+        <FormAddFriend onCloseForm={handleShowFormAddFriend} />
+      )}
+
+      <div className="flex items-center justify-between">
+        <h1 className="text-white font-bold text-xl flex items-center gap-3">
+          <Image alt="icon-main" src={main} width={40} height={40}></Image>
+          Chat v7
+        </h1>
+
+        <IoPersonAdd
+          onClick={handleShowFormAddFriend}
+          className="hover:cursor-pointer text-gray-300 text-xl"
+        />
+      </div>
 
       <div className="bg-black p-1 flex gap-2 rounded-md mt-4">
         <button

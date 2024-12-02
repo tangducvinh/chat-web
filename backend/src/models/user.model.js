@@ -24,6 +24,13 @@ var userSchema = new mongoose.Schema(
       minLength: 6,
       maxLength: 20,
     },
+    user_list_friends: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: [],
+      },
+    ],
   },
   {
     timestamps: true,

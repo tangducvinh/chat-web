@@ -18,6 +18,7 @@ interface IMessage {
     user_name: string;
     user_avatar: string;
   };
+  _id: string;
 }
 
 const Content = () => {
@@ -31,19 +32,38 @@ const Content = () => {
   const apiCalled = useRef<boolean>(false);
 
   useEffect(() => {
-    socket?.on("server-send-message", (data: any) => {
+    if (listMessage.length === 0) {
+      socket?.emit("client-send-get-history-messages", {
+        scope: "global",
+      });
+    }
+  }, [socket, listMessage.length]);
+
+  useEffect(() => {
+    socket?.on("server-send-history-messages", (data: any) => {
+      console.log({ data });
       setListMessage(data);
+    });
+
+    socket?.on("server-send-message", (data: any) => {
+      setListMessage((prev) => [data, ...prev]);
     });
 
     socket?.on("update-typing", (data: string[]) => {
       setListTyping(data);
+    });
+
+    // listen get more messages
+    socket?.on("server-send-more-messages", (data: any) => {
+      setListMessage((prev) => [...prev, ...data]);
+      apiCalled.current = false;
     });
   }, [socket]);
 
   const handleGetMoreMessage = (socket: any, skip: number) => {
     if (apiCalled.current) return;
     apiCalled.current = true;
-    socket.emit("client-get-more-message", skip);
+    socket.emit("client-get-more-message", { skip, scope: "global" });
   };
 
   const onSubmit = (e: any) => {
@@ -72,17 +92,22 @@ const Content = () => {
   useEffect(() => {
     const handleScroll = throttle(() => {
       const scrollTop = containerMessageRef.current?.scrollTop;
-      const heightOfElement = containerMessageRef.current?.offsetHeight;
 
       if (scrollTop && scrollTop < -100) {
         setShowButtonScrollBottom(true);
       } else {
         setShowButtonScrollBottom(false);
       }
-      if (scrollTop && heightOfElement && scrollTop + heightOfElement < 78) {
-        let skip = listMessage.length;
 
-        handleGetMoreMessage(socket, skip);
+      // console.log(containerMessageRef.current?.scrollTop);
+      if (containerMessageRef.current) {
+        const scrollTop = Math.abs(containerMessageRef.current.scrollTop);
+        const clientHeight = containerMessageRef.current.clientHeight;
+        const scrollHeight = containerMessageRef.current.scrollHeight;
+
+        if (scrollTop + clientHeight >= scrollHeight) {
+          handleGetMoreMessage(socket, listMessage.length);
+        }
       }
     }, 200);
 
@@ -104,7 +129,7 @@ const Content = () => {
   };
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="flex flex-col h-full w-full">
       <HeaderContent title={"Chat global"} />
       <ul
         ref={containerMessageRef}
@@ -113,10 +138,10 @@ const Content = () => {
         {listMessage.map((item, index) => (
           <MessageItem
             key={index}
-            avatar={item.mes_user_send.user_avatar || "d"}
-            name={item.mes_user_send.user_name}
-            content={item.mes_content}
-            time={item.createdAt}
+            avatar={item.mes_user_send?.user_avatar || "d"}
+            name={item.mes_user_send?.user_name}
+            content={item?.mes_content}
+            time={item?.createdAt}
           />
         ))}
       </ul>

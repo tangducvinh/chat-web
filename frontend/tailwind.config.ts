@@ -8,10 +8,6 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-      },
       flex: {
         "2": "2 2 0%",
         "3": "3 3 0%",
@@ -20,6 +16,9 @@ export default {
         "6": "6 6 0%",
         "7": "7 7 0%",
         "8": "8 8 0%",
+      },
+      colors: {
+        "overlay-black": "rgba(0, 0, 0, 0.5)",
       },
     },
   },

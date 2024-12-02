@@ -56,9 +56,19 @@ const SocketServices = (io) => {
       io.sockets.emit("server-send-update-user-online", { listUsers });
     });
 
+    // handle get history message
+    socket.on("client-send-get-history-messages", async (payload) => {
+      const listMessages = await MessageService.getListMessage({
+        limit: 15,
+        skip: 0,
+        filter: { mes_scope: payload.scope },
+      });
+
+      socket.emit("server-send-history-messages", listMessages);
+    });
+
     // handle message
     socket.on("client-send-message", async (payload) => {
-      console.log(payload);
       // save message into db
       const message = await MessageService.createMessage({
         mes_user_send: payload.userId,
@@ -67,11 +77,7 @@ const SocketServices = (io) => {
       });
 
       if (message.mes_scope === "global") {
-        const listMessage = await MessageService.getListMessage({
-          limit: 15,
-          filter: { mes_scope: message.mes_scope },
-        });
-        io.sockets.emit("server-send-message", listMessage);
+        io.sockets.emit("server-send-message", message);
       } else {
         console.log("handle send for only room");
       }
@@ -80,9 +86,15 @@ const SocketServices = (io) => {
     });
 
     // handle get more message
-    socket.on("client-get-more-message", (payload) => {
+    socket.on("client-get-more-message", async (payload) => {
       console.log("call api yet");
-      console.log(payload);
+      const listMessages = await MessageService.getListMessage({
+        limit: 15,
+        skip: payload.skip,
+        filter: { mes_scope: payload.scope },
+      });
+
+      socket.emit("server-send-more-messages", listMessages);
     });
 
     // handle listening typing

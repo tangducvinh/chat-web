@@ -13,10 +13,10 @@ var notificationSchema = new mongoose.Schema(
       ref: "User",
     },
     noti_receive: {
-      type: mongoose.SchemaType.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    content: {
+    noti_content: {
       type: String,
       require: true,
     },

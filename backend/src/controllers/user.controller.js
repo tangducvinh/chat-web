@@ -9,6 +9,17 @@ const createUser = async (req, res, next) => {
   }).send(res);
 };
 
+const getListUser = async (req, res, next) => {
+  new OK({
+    message: "Get list user successfully",
+    metadata: await UserService.getListUser({
+      filter: req.query,
+      limit: req.query?.limit,
+    }),
+  }).send(res);
+};
+
 module.exports = {
   createUser,
+  getListUser,
 };

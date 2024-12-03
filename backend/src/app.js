@@ -22,6 +22,14 @@ app.use(
   })
 );
 
+app.use(
+  cors({
+    origin: "*",
+    methods: ["POST", "PUT", "GET", "DELETE"],
+    credentials: true,
+  })
+);
+
 initRouter(app);
 require("./dbs/init.mongodb");
 

@@ -1,5 +1,6 @@
 const UserService = require("../services/user.service");
 const MessageService = require("../services/message.service");
+const NotificationService = require("../services/notification.service.js");
 
 const SocketServices = (io) => {
   let listUsers = [];
@@ -95,6 +96,25 @@ const SocketServices = (io) => {
       });
 
       socket.emit("server-send-more-messages", listMessages);
+    });
+
+    // handle get friend request
+    socket.on("client-send-friend-request", async (payload) => {
+      const user = await UserService.foundUser({ _id: payload.userSend });
+
+      const notification = await NotificationService.createNotification({
+        ...payload,
+        content: `${user.user_name} gửi lời mời kết bạn!`,
+      });
+
+      const foundIdSocketUser = listUsers.find(
+        (item) => item.id === payload.userReceive
+      );
+
+      if (!foundIdSocketUser) return;
+      socket
+        .to(foundIdSocketUser.idSocket)
+        .emit("server-send-notice-friend-request", notification);
     });
 
     // handle listening typing

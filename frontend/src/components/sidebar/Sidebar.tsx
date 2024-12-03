@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import clsx from "clsx";
 import { CgMail } from "react-icons/cg";
 import { FaUserFriends } from "react-icons/fa";
@@ -14,14 +14,20 @@ import FormAddFriend from "../form/FormAddFriend";
 import { useCallback } from "react";
 
 const Sidebar = () => {
-  const { user } = useMyContext();
+  const { user, socket } = useMyContext();
   const [option, setOption] = useState<number>(1);
-  const [showFormAddFriend, setShowFormAddFriend] = useState<boolean>(true);
+  const [showFormAddFriend, setShowFormAddFriend] = useState<boolean>(false);
 
   // handle close form add friend
   const handleShowFormAddFriend = useCallback(() => {
     setShowFormAddFriend((prev) => !prev);
   }, []);
+
+  useEffect(() => {
+    socket?.on("server-send-notice-friend-request", (data: any) => {
+      console.log(data);
+    });
+  }, [socket]);
 
   return (
     <div className="flex flex-col h-full relative">

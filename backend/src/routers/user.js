@@ -5,5 +5,6 @@ const userController = require("../controllers/user.controller");
 const asyncHandler = require("../helpers/asyncHandler");
 
 router.post("/", asyncHandler(userController.createUser));
+router.get("/list", asyncHandler(userController.getListUser));
 
 module.exports = router;

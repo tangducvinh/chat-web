@@ -34,8 +34,21 @@ const foundUser = async (filter) => {
   return await User.findOne(filter);
 };
 
+const getListUser = async ({ filter, limit = 15 }) => {
+  const query = {};
+  if (filter.name) {
+    query.user_name = { $regex: filter.name, $options: "i" };
+  }
+
+  // return await User.find(query).limit(limit);
+  const response = await User.find(query).limit(limit);
+
+  return response;
+};
+
 module.exports = {
   createUser,
   foundUser,
   getUserByAccessToken,
+  getListUser,
 };

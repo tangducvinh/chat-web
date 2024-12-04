@@ -64,6 +64,7 @@ const FormAddFriend: React.FC<IProps> = ({ onCloseForm }) => {
 
           {listUsers?.map((item) => (
             <UserItem
+              type={"request"}
               key={item._id}
               name={item.user_name}
               avatar={item.user_avatar}

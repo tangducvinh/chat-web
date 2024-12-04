@@ -20,6 +20,9 @@ var notificationSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
+    noti_status_reply: {
+      type: Boolean,
+    }
   },
   {
     timestamps: true,

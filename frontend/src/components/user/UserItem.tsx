@@ -7,9 +7,10 @@ interface IProps {
   name: string;
   avatar?: string;
   id: string;
+  type: string;
 }
 
-const UserItem: React.FC<IProps> = ({ name, avatar, id }) => {
+const UserItem: React.FC<IProps> = ({ name, avatar, id, type }) => {
   const { socket, user } = useMyContext();
 
   const handleSendFriendRequest = () => {
@@ -31,12 +32,14 @@ const UserItem: React.FC<IProps> = ({ name, avatar, id }) => {
         <strong className="text-sm">{name}</strong>
       </div>
 
-      <button
-        onClick={handleSendFriendRequest}
-        className="text-xs text-blue-500 opacity-90 hover:opacity-100 border-[1px] font-bold rounded-sm border-blue-500 px-2 py-1"
-      >
-        Kết bạn
-      </button>
+      {type === "request" && (
+        <button
+          onClick={handleSendFriendRequest}
+          className="text-xs text-blue-500 opacity-90 hover:opacity-100 border-[1px] font-bold rounded-sm border-blue-500 px-2 py-1"
+        >
+          Kết bạn
+        </button>
+      )}
     </li>
   );
 };

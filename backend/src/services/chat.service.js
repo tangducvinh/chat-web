@@ -117,6 +117,11 @@ const SocketServices = (io) => {
         .emit("server-send-notice-friend-request", notification);
     });
 
+    // handle accepted friend 
+    socket.on("client-send-accepted-friend", async(payload) => {
+      console.log(payload)
+    })
+
     // handle listening typing
     socket.on("someone-typing", (name) => {
       if (listTyping.length > 3) listTyping.pop();
@@ -134,6 +139,7 @@ const SocketServices = (io) => {
     socket.on("disconnect", () => {
       console.log("ngat ket noi: ", socket.id);
       listUsers = listUsers.filter((item) => item.idSocket !== socket.id);
+      console.log({ listUsers });
       socket.broadcast.emit("server-send-update-user-online", { listUsers });
     });
   });

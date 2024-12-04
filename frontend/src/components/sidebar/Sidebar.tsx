@@ -9,14 +9,17 @@ import { useMyContext } from "@/store/MyContext";
 import Image from "next/image";
 import female1 from "../../assets/avatar/female1.jpg";
 import ContentUserOnline from "../content/ContentUserOnline";
-import { IoPersonAdd } from "react-icons/io5";
+import { IoPersonAdd, IoNotificationsOutline } from "react-icons/io5";
 import FormAddFriend from "../form/FormAddFriend";
 import { useCallback } from "react";
+import ContentNotification from "../content/ContentNotification";
 
 const Sidebar = () => {
   const { user, socket } = useMyContext();
   const [option, setOption] = useState<number>(1);
   const [showFormAddFriend, setShowFormAddFriend] = useState<boolean>(false);
+  const [showNotification, setShowNotification] = useState<boolean>(false);
+  const [numberNotification, setNumberNotification] = useState<number>(0);
 
   // handle close form add friend
   const handleShowFormAddFriend = useCallback(() => {
@@ -26,6 +29,10 @@ const Sidebar = () => {
   useEffect(() => {
     socket?.on("server-send-notice-friend-request", (data: any) => {
       console.log(data);
+    });
+
+    socket?.on("server-send-notice-friend-request", () => {
+      setNumberNotification((prev) => prev + 1);
     });
   }, [socket]);
 
@@ -41,10 +48,39 @@ const Sidebar = () => {
           Chat v7
         </h1>
 
-        <IoPersonAdd
-          onClick={handleShowFormAddFriend}
-          className="hover:cursor-pointer text-gray-300 text-xl"
-        />
+        <div className="flex items-center gap-5">
+          <div
+            className="relative"
+            onMouseEnter={() => setShowNotification(true)}
+            onMouseLeave={() => setShowNotification(false)}
+          >
+            <div className="relative">
+              <IoNotificationsOutline
+                onMouseEnter={() => setShowNotification(true)}
+                className="hover:cursor-pointer text-gray-300 text-xl relative"
+              />
+
+              {numberNotification > 0 && (
+                <span className="absolute right-[-5px] top-[-10px] text-[10px] px-[5px] py-[1px] bg-red-500 rounded-full text-white">
+                  {numberNotification}
+                </span>
+              )}
+            </div>
+
+            <div className="left-[-10px] w-[40px] h-[20px] absolute"></div>
+
+            {showNotification && (
+              <div className="absolute left-[-100px] mt-2 z-10">
+                <ContentNotification />
+              </div>
+            )}
+          </div>
+
+          <IoPersonAdd
+            onClick={handleShowFormAddFriend}
+            className="hover:cursor-pointer text-gray-300 text-xl"
+          />
+        </div>
       </div>
 
       <div className="bg-black p-1 flex gap-2 rounded-md mt-4">
@@ -75,7 +111,7 @@ const Sidebar = () => {
       </div>
 
       {user.name && (
-        <div className="flex gap-3 items-center border-t-[1px] border-gray-300 pt-2 relative">
+        <div className="flex gap-3 z-0 items-center border-t-[1px] border-gray-300 pt-2 relative">
           <Image
             alt="avatar"
             src={female1}

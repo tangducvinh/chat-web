@@ -3,4 +3,11 @@ export interface INotification {
   noti_send: { _id: string; user_name: string; user_avatar?: string };
   noti_content: string;
   createdAt: string;
+  noti_status_reply: Boolean;
+}
+
+export interface IUser {
+  _id: string;
+  user_name: string;
+  user_avatar: string;
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import clsx from "clsx";
 import { CgMail } from "react-icons/cg";
 import { FaUserFriends } from "react-icons/fa";
@@ -11,7 +11,6 @@ import female1 from "../../assets/avatar/female1.jpg";
 import ContentUserOnline from "../content/ContentUserOnline";
 import { IoPersonAdd, IoNotificationsOutline } from "react-icons/io5";
 import FormAddFriend from "../form/FormAddFriend";
-import { useCallback } from "react";
 import ContentNotification from "../content/ContentNotification";
 
 const Sidebar = () => {
@@ -34,7 +33,17 @@ const Sidebar = () => {
     socket?.on("server-send-notice-friend-request", () => {
       setNumberNotification((prev) => prev + 1);
     });
+
+    socket?.on("server-send-notice-accepted-friend", (data: any) => {
+      setNumberNotification((prev) => prev + 1);
+    });
   }, [socket]);
+
+  // handle click notification icon
+  const handClickNotification = () => {
+    setShowNotification(true);
+    setNumberNotification(0);
+  };
 
   return (
     <div className="flex flex-col h-full relative">
@@ -49,16 +58,9 @@ const Sidebar = () => {
         </h1>
 
         <div className="flex items-center gap-5">
-          <div
-            className="relative"
-            onMouseEnter={() => setShowNotification(true)}
-            onMouseLeave={() => setShowNotification(false)}
-          >
+          <div className="relative" onClick={handClickNotification}>
             <div className="relative">
-              <IoNotificationsOutline
-                onMouseEnter={() => setShowNotification(true)}
-                className="hover:cursor-pointer text-gray-300 text-xl relative"
-              />
+              <IoNotificationsOutline className="hover:cursor-pointer text-gray-300 text-xl relative" />
 
               {numberNotification > 0 && (
                 <span className="absolute right-[-5px] top-[-10px] text-[10px] px-[5px] py-[1px] bg-red-500 rounded-full text-white">
@@ -71,7 +73,7 @@ const Sidebar = () => {
 
             {showNotification && (
               <div className="absolute left-[-100px] mt-2 z-10">
-                <ContentNotification />
+                <ContentNotification onCloseForm={setShowNotification} />
               </div>
             )}
           </div>

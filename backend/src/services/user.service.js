@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const { Types } = require("mongoose");
 const {
   NotFoundError,
   ConflictRequestError,
@@ -46,9 +47,37 @@ const getListUser = async ({ filter, limit = 15 }) => {
   return response;
 };
 
+const acceptFriend = async ({ userSend, userReceive }) => {
+  await User.updateOne(
+    { _id: userSend },
+    { $addToSet: { user_list_friends: userReceive } }
+  );
+  await User.updateOne(
+    { _id: userReceive },
+    { $addToSet: { user_list_friends: userSend } }
+  );
+};
+
+const getListFriend = async ({ userId, limit = 1, skip = 0 }) => {
+  console.log({ limit, skip });
+
+  const user = await User.findOne(
+    { _id: new Types.ObjectId(userId) },
+    { user_list_friends: { $slice: -1 } }
+  ).select(["user_list_friends"]);
+
+  const populatedUser = await User.populate(user, {
+    path: "user_list_friends",
+  });
+
+  return populatedUser;
+};
+
 module.exports = {
   createUser,
   foundUser,
   getUserByAccessToken,
   getListUser,
+  acceptFriend,
+  getListFriend,
 };

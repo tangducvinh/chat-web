@@ -1,20 +1,27 @@
-'use strict'
+"use strict";
 
-const mongoose = require('mongoose'); // Erase if already required
+const mongoose = require("mongoose"); // Erase if already required
 
-const DOCUMENT_NAME = 'Room'
-const COLLECTION_NAME = 'rooms'
+const DOCUMENT_NAME = "Room";
+const COLLECTION_NAME = "rooms";
 
 // Declare the Schema of the Mongo model
 var roomSchema = new mongoose.Schema({
-    room_name:{
-        type:String,
-        required:true,
-        index:true,
+  room_name: {
+    type: String,
+    required: true,
+    index: true,
+  },
+  room_menbers: {
+    type: Array,
+  },
+  room_list_messages: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Message",
+      default: [],
     },
-    room_menbers:{
-        type:Array,
-    },
+  ],
 });
 
 //Export the model

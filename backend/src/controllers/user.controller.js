@@ -19,7 +19,15 @@ const getListUser = async (req, res, next) => {
   }).send(res);
 };
 
+const getListFriend = async (req, res, next) => {
+  new OK({
+    message: "Get list friend successfully",
+    metadata: await UserService.getListFriend({ userId: req.params.uid }),
+  }).send(res);
+};
+
 module.exports = {
   createUser,
   getListUser,
+  getListFriend,
 };

@@ -11,7 +11,9 @@ interface IProps {
   avatar?: string;
   content: string;
   time: string;
+  notificationId: string;
   id: string;
+  status: Boolean;
 }
 
 const UserNotificationItem: React.FC<IProps> = ({
@@ -19,12 +21,18 @@ const UserNotificationItem: React.FC<IProps> = ({
   avatar,
   content,
   time,
+  notificationId,
   id,
+  status,
 }) => {
   const { user, socket } = useMyContext();
 
   const handleAcceptFriend = (userId: string, userIdFriend: string) => {
-    socket.emit("client-send-accepted-friend", { userId, userIdFriend });
+    socket.emit("client-send-accepted-friend", {
+      userId,
+      userIdFriend,
+      notificationId,
+    });
   };
 
   return (
@@ -41,18 +49,20 @@ const UserNotificationItem: React.FC<IProps> = ({
           {moment(time).format("hh:mm A")}
         </p>
 
-        <div className="flex gap-2 items-center mt-2">
-          <button
-            onClick={() => handleAcceptFriend(user.id, id)}
-            className="bg-blue-500 opacity-90 hover:opacity-100 rounded-sm text-white px-4 py-1 text-sm"
-          >
-            Chấp nhận
-          </button>
+        {!status && (
+          <div className="flex gap-2 items-center mt-2">
+            <button
+              onClick={() => handleAcceptFriend(user.id, id)}
+              className="bg-blue-500 opacity-90 hover:opacity-100 rounded-sm text-white px-4 py-1 text-sm"
+            >
+              Chấp nhận
+            </button>
 
-          <button className="bg-white border-[1px] border-gray-300 rounded-sm px-4 py-1 text-sm">
-            Từ chối
-          </button>
-        </div>
+            <button className="bg-white border-[1px] border-gray-300 rounded-sm px-4 py-1 text-sm">
+              Từ chối
+            </button>
+          </div>
+        )}
       </div>
     </li>
   );

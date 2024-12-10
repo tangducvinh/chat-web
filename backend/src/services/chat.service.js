@@ -117,10 +117,43 @@ const SocketServices = (io) => {
         .emit("server-send-notice-friend-request", notification);
     });
 
-    // handle accepted friend 
-    socket.on("client-send-accepted-friend", async(payload) => {
-      console.log(payload)
-    })
+    // handle accepted friend
+    socket.on("client-send-accepted-friend", async (payload) => {
+      // add friend for two user
+      await UserService.acceptFriend({
+        userSend: payload.userId,
+        userReceive: payload.userIdFriend,
+      });
+
+      const user = await UserService.foundUser({ _id: payload.userId });
+
+      // create new notification for user send
+      const notification = await NotificationService.createNotification({
+        userSend: payload.userId,
+        userReceive: payload.userIdFriend,
+        content: `Bạn và ${user.user_name} đã trở thành bạn bè!`,
+        status: true,
+      });
+
+      // update notification for user accepted
+      await NotificationService.updateNotification({
+        notificationId: payload.notificationId,
+        content: `Bạn và ${notification.noti_receive.user_name} đã trở thành bạn bè!`,
+      });
+
+      // update list notification for user accepted
+      socket.emit("server-send-get-new-list-notification");
+
+      const foundIdSocketUser = listUsers.find(
+        (item) => item.id === payload.userIdFriend
+      );
+      if (!foundIdSocketUser) return;
+
+      // send notice for user send friend
+      socket
+        .to(foundIdSocketUser.idSocket)
+        .emit("server-send-notice-accepted-friend", notification);
+    });
 
     // handle listening typing
     socket.on("someone-typing", (name) => {

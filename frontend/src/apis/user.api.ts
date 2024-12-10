@@ -9,4 +9,15 @@ const getListUser = async (data?: any) => {
   return response.json();
 };
 
-export { getListUser };
+const getListFriends = async (userId: string) => {
+  const response = await fetch(
+    `${process.env.URL_SERVER_API}/user/list-friend/` + userId,
+    {
+      method: "GET",
+    }
+  );
+
+  return response.json();
+};
+
+export { getListUser, getListFriends };

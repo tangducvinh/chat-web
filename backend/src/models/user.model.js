@@ -26,9 +26,14 @@ var userSchema = new mongoose.Schema(
     },
     user_list_friends: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        default: [],
+        infor_user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        infor_room: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Room",
+        },
       },
     ],
   },

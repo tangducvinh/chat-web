@@ -11,3 +11,8 @@ export interface IUser {
   user_name: string;
   user_avatar: string;
 }
+
+export interface IListFriends {
+  infor_user: IUser;
+  infor_room: string;
+}

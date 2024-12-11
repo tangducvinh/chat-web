@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, memo } from "react";
 import { IoSendSharp, IoArrowDownSharp } from "react-icons/io5";
 import { throttle } from "lodash";
 
 import HeaderContent from "@/components/content/HeaderContent";
 import MessageItem from "@/components/message/MessageItem";
 import { useMyContext } from "@/store/MyContext";
+
+interface IProps {
+  roomId: string;
+}
 
 interface IMessage {
   mes_content: string;
@@ -21,7 +25,7 @@ interface IMessage {
   _id: string;
 }
 
-const Content = () => {
+const ContentChat: React.FC<IProps> = ({ roomId }) => {
   const { socket, user } = useMyContext();
   const [message, setMessage] = useState<string>("");
   const [listMessage, setListMessage] = useState<IMessage[]>([]);
@@ -34,19 +38,21 @@ const Content = () => {
   useEffect(() => {
     if (listMessage.length === 0) {
       socket?.emit("client-send-get-history-messages", {
-        scope: "global",
+        roomId,
       });
     }
-  }, [socket, listMessage.length]);
+  }, [socket, listMessage?.length]);
 
   useEffect(() => {
     socket?.on("server-send-history-messages", (data: any) => {
-      console.log({ data });
-      setListMessage(data);
+      if (!data) return;
+      setListMessage(data.room_list_messages);
     });
 
     socket?.on("server-send-message", (data: any) => {
-      setListMessage((prev) => [data, ...prev]);
+      // console.log({ data });
+      // setListMessage((prev) => [data, ...prev]);
+      console.log("here");
     });
 
     socket?.on("update-typing", (data: string[]) => {
@@ -55,15 +61,23 @@ const Content = () => {
 
     // listen get more messages
     socket?.on("server-send-more-messages", (data: any) => {
-      setListMessage((prev) => [...prev, ...data]);
+      if (!data) return;
+      setListMessage((prev) => [...prev, ...data.room_list_messages]);
       apiCalled.current = false;
     });
   }, [socket]);
 
+  useEffect(() => {
+    socket?.emit("client-send-join-room", roomId);
+  }, [roomId, socket]);
+
   const handleGetMoreMessage = (socket: any, skip: number) => {
     if (apiCalled.current) return;
     apiCalled.current = true;
-    socket.emit("client-get-more-message", { skip, scope: "global" });
+    socket.emit("client-get-more-message", {
+      skip,
+      roomId,
+    });
   };
 
   const onSubmit = (e: any) => {
@@ -73,7 +87,7 @@ const Content = () => {
       socket.emit("client-send-message", {
         content: message,
         userId: user.id,
-        scope: "global",
+        roomId,
       });
       setMessage("");
       handleScrollBottom();
@@ -137,7 +151,7 @@ const Content = () => {
       >
         {listMessage.map((item, index) => (
           <MessageItem
-            key={index}
+            key={item._id}
             avatar={item.mes_user_send?.user_avatar || "d"}
             name={item.mes_user_send?.user_name}
             content={item?.mes_content}
@@ -177,8 +191,11 @@ const Content = () => {
 
         {listTyping.length && (
           <ul className="absolute top-[-100px] left-[80px] h-[80px] flex flex-col-reverse">
-            {listTyping.map((item) => (
-              <li className="text-gray-300 text-sm">{`${item} is typing...`}</li>
+            {listTyping.map((item, index) => (
+              <li
+                key={index}
+                className="text-gray-300 text-sm"
+              >{`${item} is typing...`}</li>
             ))}
           </ul>
         )}
@@ -187,4 +204,4 @@ const Content = () => {
   );
 };
 
-export default Content;
+export default memo(ContentChat);

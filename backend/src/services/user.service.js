@@ -47,14 +47,28 @@ const getListUser = async ({ filter, limit = 15 }) => {
   return response;
 };
 
-const acceptFriend = async ({ userSend, userReceive }) => {
+const acceptFriend = async ({ userSend, userReceive, roomId }) => {
   await User.updateOne(
     { _id: userSend },
-    { $addToSet: { user_list_friends: userReceive } }
+    {
+      $addToSet: {
+        user_list_friends: {
+          infor_user: userReceive,
+          infor_room: roomId,
+        },
+      },
+    }
   );
   await User.updateOne(
     { _id: userReceive },
-    { $addToSet: { user_list_friends: userSend } }
+    {
+      $addToSet: {
+        user_list_friends: {
+          infor_user: userSend,
+          infor_room: roomId,
+        },
+      },
+    }
   );
 };
 
@@ -66,9 +80,12 @@ const getListFriend = async ({ userId, limit = 1, skip = 0 }) => {
     { user_list_friends: { $slice: -1 } }
   ).select(["user_list_friends"]);
 
-  const populatedUser = await User.populate(user, {
-    path: "user_list_friends",
-  });
+  const populatedUser = await User.populate(user, [
+    {
+      path: "user_list_friends.infor_user",
+      select: ["user_name", "user_avatar", "_id"],
+    },
+  ]);
 
   return populatedUser;
 };

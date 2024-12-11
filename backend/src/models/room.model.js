@@ -9,7 +9,6 @@ const COLLECTION_NAME = "rooms";
 var roomSchema = new mongoose.Schema({
   room_name: {
     type: String,
-    required: true,
     index: true,
   },
   room_menbers: {

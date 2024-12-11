@@ -1,6 +1,7 @@
 const UserService = require("../services/user.service");
 const MessageService = require("../services/message.service");
 const NotificationService = require("../services/notification.service.js");
+const RoomService = require("../services/room.service.js");
 
 const SocketServices = (io) => {
   let listUsers = [];
@@ -59,13 +60,20 @@ const SocketServices = (io) => {
 
     // handle get history message
     socket.on("client-send-get-history-messages", async (payload) => {
-      const listMessages = await MessageService.getListMessage({
+      const listMessages = await RoomService.getListHistoryMessage({
         limit: 15,
         skip: 0,
-        filter: { mes_scope: payload.scope },
+        roomId: payload.roomId,
       });
 
       socket.emit("server-send-history-messages", listMessages);
+    });
+
+    // handle join room to chat
+    socket.on("client-send-join-room", (payload) => {
+      console.log(`join new room: `, payload);
+      socket.join(payload);
+      console.log({ room: socket.adapter.rooms });
     });
 
     // handle message
@@ -77,22 +85,31 @@ const SocketServices = (io) => {
         mes_scope: payload.scope,
       });
 
-      if (message.mes_scope === "global") {
-        io.sockets.emit("server-send-message", message);
-      } else {
-        console.log("handle send for only room");
-      }
+      // add message to room
+      await RoomService.addMessageToRoom({
+        messageId: message._id,
+        roomId: payload.roomId,
+      });
+
+      // if (message.mes_scope === "global") {
+      //   io.sockets.emit("server-send-message", message);
+      // } else {
+      //   console.log("handle send for only room");
+      // }
+
+      console.log({ payload });
+      // chat in room
+      io.sockets.in(payload.roomId).emit("server-send-message", message);
 
       // io.sockets.emit("server-send-message", dataMessage);
     });
 
     // handle get more message
     socket.on("client-get-more-message", async (payload) => {
-      console.log("call api yet");
-      const listMessages = await MessageService.getListMessage({
+      const listMessages = await RoomService.getListHistoryMessage({
         limit: 15,
         skip: payload.skip,
-        filter: { mes_scope: payload.scope },
+        roomId: payload.roomId,
       });
 
       socket.emit("server-send-more-messages", listMessages);
@@ -119,10 +136,16 @@ const SocketServices = (io) => {
 
     // handle accepted friend
     socket.on("client-send-accepted-friend", async (payload) => {
+      // create room to chat
+      const room = await RoomService.createRoom({
+        dataUser: [payload.userId, payload.userIdFriend],
+      });
+
       // add friend for two user
       await UserService.acceptFriend({
         userSend: payload.userId,
         userReceive: payload.userIdFriend,
+        roomId: room._id,
       });
 
       const user = await UserService.foundUser({ _id: payload.userId });

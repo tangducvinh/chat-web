@@ -99,7 +99,7 @@ const SocketServices = (io) => {
 
       console.log({ payload });
       // chat in room
-      io.sockets.in(payload.roomId).emit("server-send-message", message);
+      io.to(payload.roomId).emit("server-send-message", message);
 
       // io.sockets.emit("server-send-message", dataMessage);
     });

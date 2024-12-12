@@ -26,17 +26,22 @@ const Sidebar = () => {
   }, []);
 
   useEffect(() => {
-    socket?.on("server-send-notice-friend-request", (data: any) => {
-      console.log(data);
-    });
-
-    socket?.on("server-send-notice-friend-request", () => {
+    // friend request
+    const handleFriendRequest = () => {
       setNumberNotification((prev) => prev + 1);
-    });
+    };
+    socket?.on("server-send-notice-friend-request", handleFriendRequest);
 
-    socket?.on("server-send-notice-accepted-friend", (data: any) => {
+    // accepted friend
+    const handleAcceptedFriend = (data: any) => {
       setNumberNotification((prev) => prev + 1);
-    });
+    };
+    socket?.on("server-send-notice-accepted-friend", handleAcceptedFriend);
+
+    return () => {
+      socket?.off("server-send-notice-friend-request", handleFriendRequest);
+      socket?.off("server-send-notice-accepted-friend", handleAcceptedFriend);
+    };
   }, [socket]);
 
   // handle click notification icon

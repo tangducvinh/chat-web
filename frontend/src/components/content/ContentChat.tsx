@@ -44,27 +44,40 @@ const ContentChat: React.FC<IProps> = ({ roomId }) => {
   }, [socket, listMessage?.length]);
 
   useEffect(() => {
-    socket?.on("server-send-history-messages", (data: any) => {
+    // get history message
+    const handleGetHistoryMessage = (data: any) => {
       if (!data) return;
       setListMessage(data.room_list_messages);
-    });
+    };
+    socket?.on("server-send-history-messages", handleGetHistoryMessage);
 
-    socket?.on("server-send-message", (data: any) => {
-      // console.log({ data });
-      // setListMessage((prev) => [data, ...prev]);
-      console.log("here");
-    });
+    // get message
+    const handleGetMessage = (data: any) => {
+      setListMessage((prev) => [data, ...prev]);
+    };
+    socket?.on("server-send-message", handleGetMessage);
 
-    socket?.on("update-typing", (data: string[]) => {
+    // handle typing
+    const handleTyping = (data: string[]) => {
       setListTyping(data);
-    });
+    };
+    socket?.on("update-typing", handleTyping);
 
     // listen get more messages
-    socket?.on("server-send-more-messages", (data: any) => {
+    const handleMoreMessage = (data: any) => {
       if (!data) return;
       setListMessage((prev) => [...prev, ...data.room_list_messages]);
       apiCalled.current = false;
-    });
+    };
+    socket?.on("server-send-more-messages", handleMoreMessage);
+
+    // clean up
+    return () => {
+      socket?.off("server-send-message", handleGetMessage);
+      socket?.off("server-send-history-messages", handleGetHistoryMessage);
+      socket?.off("update-typing", handleTyping);
+      socket?.off("server-send-more-messages", handleMoreMessage);
+    };
   }, [socket]);
 
   useEffect(() => {

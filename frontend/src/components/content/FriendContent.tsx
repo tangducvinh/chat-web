@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -23,11 +23,8 @@ const ContentFriend = () => {
         setListFriends(response.metadata.user_list_friends);
       }
     };
-
-    fetchListUser(user.id);
+    if (user.id) fetchListUser("675d62b1c68058fe1c07625d");
   }, [user.id]);
-
-  // console.log({ listFriends });
 
   const handleClickFriend = (roomId: string) => {
     router.push(`/chat/${roomId}`);
@@ -55,7 +52,7 @@ const ContentFriend = () => {
 
             <div className="w-[10px] h-[10px] rounded-full bg-green-500 absolute left-[39px] top-[35px] border-black border-[1px]"></div>
             <strong className="text-sm text-gray-300">
-              {item.infor_user.user_name}
+              {item.infor_user?.user_name}
             </strong>
           </li>
         ))}

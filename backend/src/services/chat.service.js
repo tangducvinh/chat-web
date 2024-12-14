@@ -53,9 +53,23 @@ const SocketServices = (io) => {
       const user = await UserService.getUserByAccessToken(accessToken);
       socket.emit("server-send-user-get-by-accessToken", user);
 
+      const listRoom = await RoomService.getListRoomByUser({
+        userId: user.metadata.id,
+      });
+
       const { name, id } = user.metadata;
       listUsers.unshift({ name, id, idSocket: socket.id });
-      io.sockets.emit("server-send-update-user-online", { listUsers });
+      // io.sockets.emit("server-send-update-user-online", { listUsers });
+      socket.emit("server-send-list-room", listRoom);
+    });
+
+    // handle get list room
+    socket.on("client-send-get-list-room", async (payload) => {
+      const listRooms = await RoomService.getListRoomByUser({
+        userId: payload,
+      });
+      if (listRooms.length >= 1)
+        socket.emit("server-send-list-room", listRooms);
     });
 
     // handle get history message
@@ -71,9 +85,7 @@ const SocketServices = (io) => {
 
     // handle join room to chat
     socket.on("client-send-join-room", (payload) => {
-      console.log(`join new room: `, payload);
       socket.join(payload);
-      console.log({ room: socket.adapter.rooms });
     });
 
     // handle message
@@ -91,17 +103,13 @@ const SocketServices = (io) => {
         roomId: payload.roomId,
       });
 
-      // if (message.mes_scope === "global") {
-      //   io.sockets.emit("server-send-message", message);
-      // } else {
-      //   console.log("handle send for only room");
-      // }
+      // get list room
+      const listRoom = await RoomService.getListRoomByUser({
+        userId: payload.userId,
+      });
 
-      console.log({ payload });
-      // chat in room
+      socket.emit("server-send-list-room", listRoom);
       io.to(payload.roomId).emit("server-send-message", message);
-
-      // io.sockets.emit("server-send-message", dataMessage);
     });
 
     // handle get more message
@@ -136,46 +144,51 @@ const SocketServices = (io) => {
 
     // handle accepted friend
     socket.on("client-send-accepted-friend", async (payload) => {
-      // create room to chat
-      const room = await RoomService.createRoom({
-        dataUser: [payload.userId, payload.userIdFriend],
-      });
+      try {
+        // create room to chat
+        const room = await RoomService.createRoom({
+          dataUser: [payload.userId, payload.userIdFriend],
+          type: "two",
+        });
 
-      // add friend for two user
-      await UserService.acceptFriend({
-        userSend: payload.userId,
-        userReceive: payload.userIdFriend,
-        roomId: room._id,
-      });
+        // add friend for two user
+        await UserService.acceptFriend({
+          userSend: payload.userId,
+          userReceive: payload.userIdFriend,
+          roomId: room._id,
+        });
 
-      const user = await UserService.foundUser({ _id: payload.userId });
+        const user = await UserService.foundUser({ _id: payload.userId });
 
-      // create new notification for user send
-      const notification = await NotificationService.createNotification({
-        userSend: payload.userId,
-        userReceive: payload.userIdFriend,
-        content: `Bạn và ${user.user_name} đã trở thành bạn bè!`,
-        status: true,
-      });
+        // create new notification for user send
+        const notification = await NotificationService.createNotification({
+          userSend: payload.userId,
+          userReceive: payload.userIdFriend,
+          content: `Bạn và ${user.user_name} đã trở thành bạn bè!`,
+          status: true,
+        });
 
-      // update notification for user accepted
-      await NotificationService.updateNotification({
-        notificationId: payload.notificationId,
-        content: `Bạn và ${notification.noti_receive.user_name} đã trở thành bạn bè!`,
-      });
+        // update notification for user accepted
+        await NotificationService.updateNotification({
+          notificationId: payload.notificationId,
+          content: `Bạn và ${notification.noti_receive.user_name} đã trở thành bạn bè!`,
+        });
 
-      // update list notification for user accepted
-      socket.emit("server-send-get-new-list-notification");
+        // update list notification for user accepted
+        socket.emit("server-send-get-new-list-notification");
 
-      const foundIdSocketUser = listUsers.find(
-        (item) => item.id === payload.userIdFriend
-      );
-      if (!foundIdSocketUser) return;
+        const foundIdSocketUser = listUsers.find(
+          (item) => item.id === payload.userIdFriend
+        );
+        if (!foundIdSocketUser) return;
 
-      // send notice for user send friend
-      socket
-        .to(foundIdSocketUser.idSocket)
-        .emit("server-send-notice-accepted-friend", notification);
+        // send notice for user send friend
+        socket
+          .to(foundIdSocketUser.idSocket)
+          .emit("server-send-notice-accepted-friend", notification);
+      } catch (e) {
+        console.log(e);
+      }
     });
 
     // handle listening typing

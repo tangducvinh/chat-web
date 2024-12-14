@@ -3,11 +3,29 @@
 const { Types } = require("mongoose");
 const Room = require("../models/room.model");
 
-const createRoom = async ({ dataUser, name }) => {
+const createRoom = async ({ dataUser, name, image, type }) => {
   return await Room.create({
     room_name: name,
     room_menbers: dataUser,
+    room_image: image,
+    room_type: type,
   });
+};
+
+const getListRoomByUser = async ({ userId, limit = 20, skip = 0 }) => {
+  const listRoom = await Room.find({
+    room_menbers: new Types.ObjectId(userId),
+  })
+    .sort({ updatedAt: -1 })
+    .select(["room_name", "room_image", "room_menbers", "room_type"])
+    .limit(limit)
+    .skip(skip)
+    .populate({
+      path: "room_menbers",
+      select: ["user_avatar", "user_name"],
+    });
+
+  return listRoom;
 };
 
 const addMessageToRoom = async ({ messageId, roomId }) => {
@@ -47,4 +65,5 @@ module.exports = {
   createRoom,
   addMessageToRoom,
   getListHistoryMessage,
+  getListRoomByUser,
 };

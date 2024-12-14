@@ -36,6 +36,13 @@ var userSchema = new mongoose.Schema(
         },
       },
     ],
+    user_list_rooms: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Room",
+        default: [],
+      },
+    ],
   },
   {
     timestamps: true,

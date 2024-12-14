@@ -16,3 +16,11 @@ export interface IListFriends {
   infor_user: IUser;
   infor_room: string;
 }
+
+export interface IRoom {
+  _id: string;
+  room_image: string;
+  room_name: string;
+  room_type: string;
+  room_menbers: IUser[];
+}

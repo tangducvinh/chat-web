@@ -63,6 +63,39 @@ const SocketServices = (io) => {
       socket.emit("server-send-list-room", listRoom);
     });
 
+    // handle create room
+    socket.on("client-send-create-room", async (payload) => {
+      const { dataUser, name, image, userId } = payload;
+      console.log({ payload });
+
+      const newRoom = await RoomService.createRoom({
+        dataUser: [...dataUser, userId],
+        name,
+        image,
+        type: "group",
+      });
+
+      if (!newRoom) return;
+
+      console.log(listUsers);
+
+      listUsers.forEach(async (item) => {
+        if (
+          newRoom.room_menbers.some((subItem) => subItem.toString() === item.id)
+        ) {
+          const listRoom = await RoomService.getListRoomByUser({
+            userId: item.id,
+          });
+          socket.to(item.idSocket).emit("server-send-list-room", listRoom);
+        }
+      });
+
+      const listRoom = await RoomService.getListRoomByUser({
+        userId,
+      });
+      socket.emit("server-send-list-room", listRoom);
+    });
+
     // handle get list room
     socket.on("client-send-get-list-room", async (payload) => {
       const listRooms = await RoomService.getListRoomByUser({

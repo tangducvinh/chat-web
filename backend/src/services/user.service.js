@@ -73,8 +73,6 @@ const acceptFriend = async ({ userSend, userReceive, roomId }) => {
 };
 
 const getListFriend = async ({ userId, limit = 1, skip = 0 }) => {
-  console.log({ limit, skip });
-
   const user = await User.findOne(
     { _id: new Types.ObjectId(userId) },
     { user_list_friends: { $slice: -1 } }

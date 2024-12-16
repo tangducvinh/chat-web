@@ -35,7 +35,7 @@ const FormAddFriend: React.FC<IProps> = ({ onCloseForm }) => {
 
   return (
     <div className="fixed z-10 inset-0 w-screen h-screen bg-overlay-black flex justify-center items-center">
-      <div className="bg-white rounded-md w-[400px] h-[500px]">
+      <div className="bg-white rounded-md w-[400px] h-[65%]">
         <div className="flex items-center p-3 justify-between border-b-2 border-gray-300 pb-2">
           <h2 className="text-black font-semibold">Thêm bạn</h2>
 

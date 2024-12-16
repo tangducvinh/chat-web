@@ -23,7 +23,7 @@ const ContentFriend = () => {
         setListFriends(response.metadata.user_list_friends);
       }
     };
-    if (user.id) fetchListUser("675d62b1c68058fe1c07625d");
+    if (user.id) fetchListUser(user.id);
   }, [user.id]);
 
   const handleClickFriend = (roomId: string) => {

@@ -12,6 +12,8 @@ import ContentUserOnline from "../content/ContentUserOnline";
 import { IoPersonAdd, IoNotificationsOutline } from "react-icons/io5";
 import FormAddFriend from "../form/FormAddFriend";
 import ContentNotification from "../content/ContentNotification";
+import { MdGroupAdd } from "react-icons/md";
+import FormCreateGroup from "../form/FormCreateGroup";
 
 const Sidebar = () => {
   const { user, socket } = useMyContext();
@@ -19,6 +21,7 @@ const Sidebar = () => {
   const [showFormAddFriend, setShowFormAddFriend] = useState<boolean>(false);
   const [showNotification, setShowNotification] = useState<boolean>(false);
   const [numberNotification, setNumberNotification] = useState<number>(0);
+  const [showCreateGroup, setShowCreateGroup] = useState<boolean>(false);
 
   // handle close form add friend
   const handleShowFormAddFriend = useCallback(() => {
@@ -50,10 +53,19 @@ const Sidebar = () => {
     setNumberNotification(0);
   };
 
+  // handle close form add create group
+  const handleShowFormCreateGroup = useCallback(() => {
+    setShowCreateGroup((prev) => !prev);
+  }, []);
+
   return (
     <div className="flex flex-col h-full relative">
       {showFormAddFriend && (
         <FormAddFriend onCloseForm={handleShowFormAddFriend} />
+      )}
+
+      {showCreateGroup && (
+        <FormCreateGroup onCloseForm={handleShowFormCreateGroup} />
       )}
 
       <div className="flex items-center justify-between">
@@ -86,6 +98,11 @@ const Sidebar = () => {
           <IoPersonAdd
             onClick={handleShowFormAddFriend}
             className="hover:cursor-pointer text-gray-300 text-xl"
+          />
+
+          <MdGroupAdd
+            onClick={handleShowFormCreateGroup}
+            className="hover:cursor-pointer text-gray-300 text-2xl"
           />
         </div>
       </div>

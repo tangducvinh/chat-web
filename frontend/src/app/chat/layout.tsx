@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <div className="bg-[#2E2F38] h-screen flex">
-      <div className="bg-[#25262D] flex-2 p-3">
+      <div className="bg-[#25262D] flex-2 max-w-[350px]">
         <Sidebar />
       </div>
 

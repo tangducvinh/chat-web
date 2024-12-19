@@ -13,7 +13,7 @@ interface IMessage {
 
 const Message: React.FC<IMessage> = ({ name, avatar, time, content }) => {
   return (
-    <li className="flex gap-3">
+    <li className="flex gap-3 items-center">
       <Image
         className="rounded-full object-cover"
         alt="avatar"
@@ -28,7 +28,7 @@ const Message: React.FC<IMessage> = ({ name, avatar, time, content }) => {
           {moment(time).format("hh:mm A")}
         </span>
 
-        <p className="break-words text-wrap">{content}</p>
+        <p className="break-words text-wrap max-w-[600px]">{content}</p>
       </div>
     </li>
   );

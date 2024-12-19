@@ -2,14 +2,17 @@
 
 import React, { useEffect, useState, useRef, useCallback, memo } from "react";
 import { IoSendSharp, IoArrowDownSharp } from "react-icons/io5";
-import { throttle } from "lodash";
+// import { throttle } from "lodash";
 
 import HeaderContent from "@/components/content/HeaderContent";
 import MessageItem from "@/components/message/MessageItem";
 import { useMyContext } from "@/store/MyContext";
+import { IUser } from "@/app/types/common.type";
 
 interface IProps {
   roomId: string;
+  name: string;
+  members: IUser[];
 }
 
 interface IMessage {
@@ -25,7 +28,7 @@ interface IMessage {
   _id: string;
 }
 
-const ContentChat: React.FC<IProps> = ({ roomId }) => {
+const ContentChat: React.FC<IProps> = ({ roomId, name, members }) => {
   const { socket, user } = useMyContext();
   const [message, setMessage] = useState<string>("");
   const [listMessage, setListMessage] = useState<IMessage[]>([]);
@@ -41,12 +44,12 @@ const ContentChat: React.FC<IProps> = ({ roomId }) => {
         roomId,
       });
     }
-  }, [socket, listMessage?.length]);
+  }, [socket, listMessage?.length, roomId]);
 
   useEffect(() => {
     // get history message
     const handleGetHistoryMessage = (data: any) => {
-      if (!data) return;
+      if (!data || data.length === 0) return;
       setListMessage(data.room_list_messages);
     };
     socket?.on("server-send-history-messages", handleGetHistoryMessage);
@@ -65,7 +68,7 @@ const ContentChat: React.FC<IProps> = ({ roomId }) => {
 
     // listen get more messages
     const handleMoreMessage = (data: any) => {
-      if (!data) return;
+      if (!data || data.length === 0) return;
       setListMessage((prev) => [...prev, ...data.room_list_messages]);
       apiCalled.current = false;
     };
@@ -78,14 +81,14 @@ const ContentChat: React.FC<IProps> = ({ roomId }) => {
       socket?.off("update-typing", handleTyping);
       socket?.off("server-send-more-messages", handleMoreMessage);
     };
-  }, [socket]);
+  }, [socket, roomId]);
 
   useEffect(() => {
     socket?.emit("client-send-join-room", roomId);
   }, [roomId, socket]);
 
   const handleGetMoreMessage = (socket: any, skip: number) => {
-    if (apiCalled.current) return;
+    if (apiCalled.current || skip === 0) return;
     apiCalled.current = true;
     socket.emit("client-get-more-message", {
       skip,
@@ -117,7 +120,7 @@ const ContentChat: React.FC<IProps> = ({ roomId }) => {
 
   // listen even scroll container message
   useEffect(() => {
-    const handleScroll = throttle(() => {
+    const handleScroll = () => {
       const scrollTop = containerMessageRef.current?.scrollTop;
 
       if (scrollTop && scrollTop < -100) {
@@ -133,10 +136,11 @@ const ContentChat: React.FC<IProps> = ({ roomId }) => {
         const scrollHeight = containerMessageRef.current.scrollHeight;
 
         if (scrollTop + clientHeight >= scrollHeight) {
+          console.log({ length: listMessage.length });
           handleGetMoreMessage(socket, listMessage.length);
         }
       }
-    }, 200);
+    };
 
     if (containerMessageRef.current) {
       containerMessageRef.current.addEventListener("scroll", handleScroll);
@@ -145,7 +149,7 @@ const ContentChat: React.FC<IProps> = ({ roomId }) => {
     return () => {
       containerMessageRef.current?.removeEventListener("scroll", handleScroll);
     };
-  }, [socket, listMessage.length]);
+  }, [socket, listMessage.length, roomId]);
 
   // handle scroll bottom
   const handleScrollBottom = () => {
@@ -157,10 +161,12 @@ const ContentChat: React.FC<IProps> = ({ roomId }) => {
 
   return (
     <div className="flex flex-col h-full w-full">
-      <HeaderContent title={"Chat global"} />
+      <HeaderContent
+        title={name || members.find((item) => item._id !== user.id)?.user_name}
+      />
       <ul
         ref={containerMessageRef}
-        className="flex flex-1 flex-col-reverse mb-[50px] p-3 gap-3 overflow-y-auto scrollbar scrollbar-custom scrollbar-thumb-gray-500 overflow-x-hidden scrollbar-custom"
+        className="flex flex-1 flex-col-reverse mb-[50px] p-3 gap-3 overflow-y-auto scrollbar scrollbar-thumb-gray-500 overflow-x-hidden scrollbar-custom"
       >
         {listMessage.map((item, index) => (
           <MessageItem

@@ -4,7 +4,7 @@ import { CgTimer } from "react-icons/cg";
 import { memo } from "react";
 
 interface IProps {
-  title: string;
+  title: string | undefined;
 }
 
 const HeaderContent: React.FC<IProps> = ({ title }) => {

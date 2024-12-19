@@ -32,7 +32,9 @@ const ContentFriend = () => {
 
   return (
     <div>
-      <SearchInput />
+      <div className="mx-3">
+        <SearchInput />
+      </div>
 
       <div className="h-[55px]"></div>
       <ul>
@@ -47,10 +49,10 @@ const ContentFriend = () => {
               src={female1 || item.infor_user.user_avatar}
               width={40}
               height={40}
-              className="rounded-full "
+              className="rounded-full ml-2"
             />
 
-            <div className="w-[10px] h-[10px] rounded-full bg-green-500 absolute left-[39px] top-[35px] border-black border-[1px]"></div>
+            <div className="w-[10px] h-[10px] rounded-full bg-green-500 absolute left-[45px] top-[37px] border-black border-[1px]"></div>
             <strong className="text-sm text-gray-300">
               {item.infor_user?.user_name}
             </strong>

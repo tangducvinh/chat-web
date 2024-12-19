@@ -147,6 +147,7 @@ const SocketServices = (io) => {
 
     // handle get more message
     socket.on("client-get-more-message", async (payload) => {
+      console.log({ payload });
       const listMessages = await RoomService.getListHistoryMessage({
         limit: 15,
         skip: payload.skip,
@@ -154,6 +155,16 @@ const SocketServices = (io) => {
       });
 
       socket.emit("server-send-more-messages", listMessages);
+    });
+
+    // handle get more rooms
+    socket.on("client-send-get-more-room", async (payload) => {
+      const listRoom = await RoomService.getListRoomByUser({
+        userId: payload.userId,
+        skip: payload.skip,
+      });
+
+      socket.emit("server-send-more-room", listRoom);
     });
 
     // handle get friend request

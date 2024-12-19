@@ -28,3 +28,12 @@ body {
 .scrollbar-custom::-webkit-scrollbar-thumb {
   border-radius: 4px;
 }
+
+.scrollbar-custom-small::-webkit-scrollbar {
+  width: 8px;
+  /* height: 5px; */
+}
+
+.scrollbar-custom-small::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+}

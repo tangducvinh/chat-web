@@ -13,6 +13,14 @@ const createRoom = async (req, res, next) => {
   }).send(res);
 };
 
+const getRoomById = async (req, res, next) => {
+  new OK({
+    message: "get room successfully",
+    metadata: await RoomService.getRoomById(req.params.id),
+  }).send(res);
+};
+
 module.exports = {
   createRoom,
+  getRoomById,
 };

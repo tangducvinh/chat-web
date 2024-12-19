@@ -17,10 +17,16 @@ export interface IListFriends {
   infor_room: string;
 }
 
+export interface IMessage {
+  mes_content: string;
+  mes_user_send: IUser;
+}
+
 export interface IRoom {
   _id: string;
   room_image: string;
   room_name: string;
   room_type: string;
   room_menbers: IUser[];
+  room_list_messages: IMessage[];
 }
